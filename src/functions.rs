@@ -57,3 +57,22 @@ pub fn newdb(command: &Command) -> io::Result<Db> {
         dimentions_amount: header,
     })
 }
+
+pub fn status(command: &Command){
+    println!("Status was called")
+}
+
+pub fn dropdb(command: &Command,db:&Db){
+    println!("dropdb was called");
+}
+
+pub fn exitdb(command: &Command, db: &Db) -> io::Result<Db> {
+    if !command.marg.is_empty() || !command.sarg.is_empty() {
+        return Err(io::Error::new(io::ErrorKind::Other, "Err: Too many arguments"));
+    }
+    if db.dimentions_amount == 0 {
+        return Err(io::Error::new(io::ErrorKind::Other, "Err: You are not in db"));
+    }
+    // Returning default value
+    Ok(Db::default())
+}

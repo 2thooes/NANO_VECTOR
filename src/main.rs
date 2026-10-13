@@ -23,6 +23,18 @@ fn main() {
                     Err(e) => println!("Err: {}", e),
                 }
             }
+            "status" => functions::status(&command),
+            "dropdb" => functions::dropdb(&command,&database),
+            "exitdb" => {
+                let i = functions::exitdb(&command,&database);
+                match i {
+                    Ok(db) => {
+                        println!("Db sucessfully exit, path: {}", db.path.display());  
+                        database = db;  
+                    },
+                    Err(e) => println!("Err: {}", e),
+                }
+            },//дописать чтобы можно было выходить из одной дб и переходить в другую
             _ => println!("Command not found"),
         }
     }
