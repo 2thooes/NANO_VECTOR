@@ -1,10 +1,10 @@
-use std::io;
+//use std::io;
 mod command;
 mod input;
 mod functions;
-use functions::*;
+//use functions::*;
 use crate::command::Command;
-use input::*;
+//use input::*;
 
 fn main() {
     println!("NANO_VECTOR by Tymur Mikhaliev\ninitok");
@@ -13,6 +13,13 @@ fn main() {
         show_command(&command);
         match command.body.as_str(){
             "help" => functions::help(&command),
+            "newdb" => {
+                let i = functions::newdb(&command);
+                match i {
+                    Ok(path) => println!("Success: {}", path.display()),
+                    Err(e) => println!("Err: {}", e),
+                }
+            }
             _ => println!("Command not found"),
         }
     }
