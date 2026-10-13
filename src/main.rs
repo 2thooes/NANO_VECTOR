@@ -1,10 +1,8 @@
-//use std::io;
 mod command;
 mod input;
 mod functions;
-//use functions::*;
+mod db;
 use crate::command::Command;
-//use input::*;
 
 fn main() {
     println!("NANO_VECTOR by Tymur Mikhaliev\ninitok");
@@ -16,7 +14,7 @@ fn main() {
             "newdb" => {
                 let i = functions::newdb(&command);
                 match i {
-                    Ok(path) => println!("Success: {}", path.display()),
+                    Ok(db) => println!("Db sucessfully created, path: {}", db.path.display()),
                     Err(e) => println!("Err: {}", e),
                 }
             }

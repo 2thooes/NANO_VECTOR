@@ -15,7 +15,7 @@ pub fn help(command: &Command){
     }
 }
 //NEWDB command
-pub fn newdb(command: &Command) -> io::Result<PathBuf> {
+pub fn newdb(command: &Command) -> io::Result<Db> {
     // Error handling
     if command.marg.is_empty() || command.sarg.is_empty() {
         return Err(io::Error::new(
@@ -40,7 +40,6 @@ pub fn newdb(command: &Command) -> io::Result<PathBuf> {
 
     // 4. Checking, if the file exists now
     if file_path.exists() {
-        //println!("Err: Db with name '{}' already exists!", command.marg);
         return Err(io::Error::new(
             io::ErrorKind::AlreadyExists,
             "Db with this name already exists",
@@ -51,9 +50,10 @@ pub fn newdb(command: &Command) -> io::Result<PathBuf> {
     let _file = File::create(&file_path)?;
     let header = command.sarg[0] as u64;
     fs::write(&file_path,header.to_le_bytes())?;
-    
-    println!("Db sucessfully created, path: {:?}", file_path);
 
     // 6. Returning the address
-    Ok(file_path)
+    Ok(Db{
+        path: file_path,
+        dimentions_amount: header,
+    })
 }
