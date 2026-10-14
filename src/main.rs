@@ -14,8 +14,8 @@ fn main() {
         match command.body.as_str(){
             "help" => functions::help(&command),
             "newdb" => {
-                let i = functions::newdb(&command);
-                match i {
+                let result = functions::newdb(&command);
+                match result {
                     Ok(db) => {
                         println!("Db sucessfully created, path: {}", db.path.display());
                         database = db;    
@@ -26,8 +26,8 @@ fn main() {
             "status" => functions::status(&command),
             "dropdb" => functions::dropdb(&command,&database),
             "exitdb" => {
-                let i = functions::exitdb(&command,&database);
-                match i {
+                let result = functions::exitdb(&command,&database);
+                match result {
                     Ok(db) => {
                         println!("Db sucessfully exit, path: {}", db.path.display());  
                         database = db;  
@@ -35,6 +35,16 @@ fn main() {
                     Err(e) => println!("Err: {}", e),
                 }
             },//дописать чтобы можно было выходить из одной дб и переходить в другую
+            "enterdb" =>{
+                let result = functions::enterdb(&command,&database);
+                match result {
+                    Ok(db) => {
+                        println!("Db sucessfully exit, path: {}", db.path.display());  
+                        database = db;  
+                    },
+                    Err(e) => println!("Err: {}", e),
+                }
+            }
             _ => println!("Command not found"),
         }
     }
