@@ -57,10 +57,6 @@ pub fn newdb(command: &Command) -> io::Result<Db> {
         dimensions_amount: header,
     })
 }
-
-pub fn status(command: &Command){
-    println!("Status was called")
-}
 //DROPDB command
 pub fn dropdb(command: &Command, db: &Db) -> io::Result<Db> {
     if !command.sarg.is_empty() {
@@ -94,17 +90,6 @@ pub fn dropdb(command: &Command, db: &Db) -> io::Result<Db> {
         ));
     }
 
-    Ok(Db::default())
-}
-//EXITDB command
-pub fn exitdb(command: &Command, db: &Db) -> io::Result<Db> {
-    if !command.marg.is_empty() || !command.sarg.is_empty() {
-        return Err(io::Error::new(io::ErrorKind::Other, "Too many arguments"));
-    }
-    if db.dimensions_amount == 0 {
-        return Err(io::Error::new(io::ErrorKind::Other, "You are not in db"));
-    }
-    // Returning default value
     Ok(Db::default())
 }
 //ENTERDB command
@@ -155,4 +140,22 @@ pub fn enterdb(command: &Command,db: &Db) -> io::Result<Db> {
         path: file_path,
         dimensions_amount: u64::from_le_bytes(buffer),
     })
+}
+//EXITDB command
+pub fn exitdb(command: &Command, db: &Db) -> io::Result<Db> {
+    if !command.marg.is_empty() || !command.sarg.is_empty() {
+        return Err(io::Error::new(io::ErrorKind::Other, "Too many arguments"));
+    }
+    if db.dimensions_amount == 0 {
+        return Err(io::Error::new(io::ErrorKind::Other, "You are not in db"));
+    }
+    // Returning default value
+    Ok(Db::default())
+}
+
+pub fn lsdb(command: &Command, db: &Db){
+    
+}
+pub fn status(command: &Command){
+    println!("Status was called")
 }

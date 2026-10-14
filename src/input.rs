@@ -27,3 +27,4 @@ pub fn input() -> String {
         .expect("Failed to read the command");
     input
 }
+
