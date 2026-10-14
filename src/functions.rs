@@ -3,7 +3,6 @@ use crate::db::Db;
 use std::fs::{self, File};
 use std::io;
 use std::io::Read;
-use std::path::PathBuf;
 use directories::ProjectDirs;
 
 // HELP command
@@ -21,7 +20,7 @@ pub fn newdb(command: &Command) -> io::Result<Db> {
     if command.marg.is_empty() || command.sarg.is_empty() {
         return Err(io::Error::new(
             io::ErrorKind::InvalidInput,
-            "Err: Not enough arguments",
+            "Not enough arguments",
         ));
     }
 
@@ -62,22 +61,53 @@ pub fn newdb(command: &Command) -> io::Result<Db> {
 pub fn status(command: &Command){
     println!("Status was called")
 }
+//DROPDB command
+pub fn dropdb(command: &Command, db: &Db) -> io::Result<Db> {
+    if !command.sarg.is_empty() {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "Too many arguments",
+        ));
+    }
 
-pub fn dropdb(command: &Command,db:&Db){
-    println!("dropdb was called");
+    let file_path = if !command.marg.is_empty() {
+        let proj_dirs = ProjectDirs::from("com", "2thooes", "nano_vector")
+            .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Cannot identify the system folder"))?;
+        let data_dir = proj_dirs.data_dir();
+        data_dir.join(format!("{}.bin", command.marg))
+    } else if *db != Db::default() {
+        db.path.clone()
+    } else {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "Not enough arguments: db name is not specified",
+        ));
+    };
+
+    if file_path.exists() {
+        fs::remove_file(&file_path)?;
+        println!("Success");
+    } else {
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Db cannot be found in: {:?}", file_path),
+        ));
+    }
+
+    Ok(Db::default())
 }
-
+//EXITDB command
 pub fn exitdb(command: &Command, db: &Db) -> io::Result<Db> {
     if !command.marg.is_empty() || !command.sarg.is_empty() {
-        return Err(io::Error::new(io::ErrorKind::Other, "Err: Too many arguments"));
+        return Err(io::Error::new(io::ErrorKind::Other, "Too many arguments"));
     }
     if db.dimensions_amount == 0 {
-        return Err(io::Error::new(io::ErrorKind::Other, "Err: You are not in db"));
+        return Err(io::Error::new(io::ErrorKind::Other, "You are not in db"));
     }
     // Returning default value
     Ok(Db::default())
 }
-
+//ENTERDB command
 pub fn enterdb(command: &Command,db: &Db) -> io::Result<Db> {
     //Error handlers
     if !command.sarg.is_empty(){
@@ -113,7 +143,7 @@ pub fn enterdb(command: &Command,db: &Db) -> io::Result<Db> {
             println!("{}", file_path.display());
             return Err(io::Error::new(
                 io::ErrorKind::NotFound,
-                format!("Файл базы данных {} не найден в папке: {:?}", command.marg, data_dir),
+                format!("Database {} was not found in directory: {:?}", command.marg, data_dir),
             ));
         }
         Err(e) => return Err(e),
@@ -121,7 +151,6 @@ pub fn enterdb(command: &Command,db: &Db) -> io::Result<Db> {
     
     let mut buffer = [0u8; 8];
     file.read_exact(&mut buffer)?;
-    
     Ok(Db {
         path: file_path,
         dimensions_amount: u64::from_le_bytes(buffer),

@@ -17,19 +17,28 @@ fn main() {
                 let result = functions::newdb(&command);
                 match result {
                     Ok(db) => {
-                        println!("Db sucessfully created, path: {}", db.path.display());
+                        println!("Success!");
                         database = db;    
                     },
                     Err(e) => println!("Err: {}", e),
                 }
             }
             "status" => functions::status(&command),
-            "dropdb" => functions::dropdb(&command,&database),
+            "dropdb" => {
+                let result = functions::dropdb(&command,&database);
+                match result {
+                    Ok(db) => {
+                        println!("Success!");  
+                        database = db;  
+                    },
+                    Err(e) => println!("Err: {}", e),
+                }
+            },
             "exitdb" => {
                 let result = functions::exitdb(&command,&database);
                 match result {
                     Ok(db) => {
-                        println!("Db sucessfully exit, path: {}", db.path.display());  
+                        println!("Success!");
                         database = db;  
                     },
                     Err(e) => println!("Err: {}", e),
@@ -39,7 +48,7 @@ fn main() {
                 let result = functions::enterdb(&command,&database);
                 match result {
                     Ok(db) => {
-                        println!("Db sucessfully exit, path: {}", db.path.display());  
+                        println!("Success!");  
                         database = db;  
                     },
                     Err(e) => println!("Err: {}", e),
