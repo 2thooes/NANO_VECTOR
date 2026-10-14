@@ -153,14 +153,38 @@ pub fn exitdb(command: &Command, db: &Db) -> io::Result<Db> {
     Ok(Db::default())
 }
 //LSDB command
-pub fn lsdb(command: &Command, db: &Db) -> io::Result<String>{
-    if !command.marg.is_empty() || !command.sarg.is_empty(){
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            "Too many arguments",
-        ));
+pub fn lsdb(command: &Command, db: &Db) -> io::Result<Vec<String>>{
+    let proj_dirs = ProjectDirs::from("com", "2thooes", "nano_vector")
+        .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Cannot identify the system folder"))?;
+
+    let data_dir = proj_dirs.data_dir();
+    
+    // На случай, если папка еще не создана, можно обработать ошибку или вернуть пустой список
+    if !data_dir.exists() {
+        return Ok(Vec::new());
     }
-    Ok("lsdb done".to_string())
+
+    let mut db_names = Vec::new();
+
+    for entry in fs::read_dir(data_dir)? {
+        let entry = entry?;
+        let path = entry.path();
+
+        // Проверяем, что это файл
+        if path.is_file() {
+            // Берем имя файла с расширением (например, "my_database.bin")
+            if let Some(file_name_os) = path.file_name() {
+                if let Some(file_name_str) = file_name_os.to_str() {
+                    // Отрезаем расширение ".bin", если оно есть
+                    if let Some(name_without_ext) = file_name_str.strip_suffix(".bin") {
+                        db_names.push(name_without_ext.to_string());
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(db_names)
 }
 pub fn status(command: &Command){
     println!("Status was called")

@@ -58,8 +58,8 @@ fn main() {
             "lsdb" => {
                 let result = functions::lsdb(&command,&database);
                 match result {
-                    Ok(string) => {
-                        println!("{}",string); 
+                    Ok(vector) => {
+                        println!("{:?}",vector);
                     },
                     Err(e) => println!("Err: {}", e),
                 }
