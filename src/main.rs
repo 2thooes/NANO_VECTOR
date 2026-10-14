@@ -25,7 +25,6 @@ fn main() {
                     Err(e) => println!("Err: {}", e),
                 }
             }
-            "status" => functions::status(&command),
             "dropdb" => {
                 let result = functions::dropdb(&command,&database);
                 match result {
@@ -36,16 +35,6 @@ fn main() {
                     Err(e) => println!("Err: {}", e),
                 }
             },
-            "exitdb" => {
-                let result = functions::exitdb(&command,&database);
-                match result {
-                    Ok(db) => {
-                        println!("Success!");
-                        database = db;  
-                    },
-                    Err(e) => println!("Err: {}", e),
-                }
-            },//дописать чтобы можно было выходить из одной дб и переходить в другую
             "enterdb" =>{
                 let result = functions::enterdb(&command,&database);
                 match result {
@@ -56,6 +45,26 @@ fn main() {
                     Err(e) => println!("Err: {}", e),
                 }
             }
+            "exitdb" => {
+                let result = functions::exitdb(&command,&database);
+                match result {
+                    Ok(db) => {
+                        println!("Success!");
+                        database = db;  
+                    },
+                    Err(e) => println!("Err: {}", e),
+                }
+            },
+            "lsdb" => {
+                let result = functions::lsdb(&command,&database);
+                match result {
+                    Ok(string) => {
+                        println!("{}",string); 
+                    },
+                    Err(e) => println!("Err: {}", e),
+                }
+            }
+            "status" => functions::status(&command),
             _ => println!("Command not found"),
         }
     }

@@ -152,9 +152,15 @@ pub fn exitdb(command: &Command, db: &Db) -> io::Result<Db> {
     // Returning default value
     Ok(Db::default())
 }
-
-pub fn lsdb(command: &Command, db: &Db){
-    
+//LSDB command
+pub fn lsdb(command: &Command, db: &Db) -> io::Result<String>{
+    if !command.marg.is_empty() || !command.sarg.is_empty(){
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "Too many arguments",
+        ));
+    }
+    Ok("lsdb done".to_string())
 }
 pub fn status(command: &Command){
     println!("Status was called")
