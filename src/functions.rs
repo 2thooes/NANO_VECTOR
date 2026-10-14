@@ -82,7 +82,6 @@ pub fn dropdb(command: &Command, db: &Db) -> io::Result<Db> {
 
     if file_path.exists() {
         fs::remove_file(&file_path)?;
-        println!("Success");
     } else {
         return Err(io::Error::new(
             io::ErrorKind::NotFound,
@@ -159,7 +158,6 @@ pub fn lsdb(command: &Command, db: &Db) -> io::Result<Vec<String>>{
 
     let data_dir = proj_dirs.data_dir();
     
-    // На случай, если папка еще не создана, можно обработать ошибку или вернуть пустой список
     if !data_dir.exists() {
         return Ok(Vec::new());
     }
@@ -170,12 +168,10 @@ pub fn lsdb(command: &Command, db: &Db) -> io::Result<Vec<String>>{
         let entry = entry?;
         let path = entry.path();
 
-        // Проверяем, что это файл
         if path.is_file() {
-            // Берем имя файла с расширением (например, "my_database.bin")
             if let Some(file_name_os) = path.file_name() {
                 if let Some(file_name_str) = file_name_os.to_str() {
-                    // Отрезаем расширение ".bin", если оно есть
+                    // Cut .bin if needed
                     if let Some(name_without_ext) = file_name_str.strip_suffix(".bin") {
                         db_names.push(name_without_ext.to_string());
                     }
@@ -186,6 +182,7 @@ pub fn lsdb(command: &Command, db: &Db) -> io::Result<Vec<String>>{
 
     Ok(db_names)
 }
+
 pub fn status(command: &Command){
     println!("Status was called")
 }

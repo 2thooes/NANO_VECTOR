@@ -59,7 +59,9 @@ fn main() {
                 let result = functions::lsdb(&command,&database);
                 match result {
                     Ok(vector) => {
-                        println!("{:?}",vector);
+                        for name in &vector{
+                            println!("Name:{}",name);
+                        }
                     },
                     Err(e) => println!("Err: {}", e),
                 }
@@ -71,9 +73,9 @@ fn main() {
 }
 
 fn show_command(command: &Command) {
-    println!("body: <{}>", command.body);
-    println!("marg: <{}>", command.marg);
-    println!("sarg: {:?}", command.sarg);
+    //println!("body: <{}>", command.body);
+    //println!("marg: <{}>", command.marg);
+    //println!("sarg: {:?}", command.sarg);
 }
 
 fn invitation(db: &Db){
