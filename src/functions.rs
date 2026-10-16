@@ -4,6 +4,8 @@ use std::fs::{self, File};
 use std::io;
 use std::io::Read;
 use directories::ProjectDirs;
+use std::fs::OpenOptions;
+use std::io::Write;
 
 // HELP command
 pub fn help(command: &Command){
@@ -182,7 +184,51 @@ pub fn lsdb(command: &Command, db: &Db) -> io::Result<Vec<String>>{
 
     Ok(db_names)
 }
+//PUT command
+pub fn put(command: &Command, db: &Db) -> io::Result<String>{
+    if *db == Db::default(){
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Put cannot be used outside of the database"),
+        ));
+    }
+    if(command.marg.is_empty() || command.sarg.is_empty() || db.dimensions_amount > command.sarg.len().try_into().unwrap()){
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Not enough arguments"),
+        ));
+    }
+    if db.dimensions_amount < command.sarg.len().try_into().unwrap(){
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Too many arguments"),
+        ));
+    }
 
+    let mut file = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .create(true)
+        .open(&db.path)?;//макс длинна стринга 64 байта, длина компонента вектора 32, заголовка 16
+
+    let bytes = command.marg.as_bytes();
+    if bytes.len() > 64{
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Value is too long")
+        ))
+    }
+    //value writing
+    let mut buffer = [0u8;64];
+    buffer[..bytes.len()].copy_from_slice(bytes);
+    file.write_all(&buffer)?;
+
+    //coordinates writing
+    for coord in &command.sarg{
+        file.write_all(&coord.to_le_bytes())?;
+    }
+    Ok("put done".to_string())
+}
 pub fn status(command: &Command){
     println!("Status was called")
 }

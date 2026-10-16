@@ -66,6 +66,15 @@ fn main() {
                     Err(e) => println!("Err: {}", e),
                 }
             }
+            "put" => {
+                let result = functions::put(&command,&database);
+                match result {
+                    Ok(string) => {
+                        println!("{}",string);
+                    },
+                    Err(e) => println!("Err: {}", e),
+                }
+            }
             "status" => functions::status(&command),
             _ => println!("Command not found"),
         }
