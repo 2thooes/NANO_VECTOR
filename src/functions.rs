@@ -58,20 +58,24 @@ pub fn newdb(command: &Command) -> io::Result<Db> {
     // 5. Creating empty file
     let _file = File::create(&file_path)?;
     let mut content = Vec::new();
-    // Если command.sarg[0] — это u64, пишем все его байты:
-    content.extend_from_slice(&(command.sarg[0] as u64).to_le_bytes());
-    // Добавляем байт 32
-    content.push((32 as u8));
+    let dimensions_amount: u64 = command.sarg[0] as u64;
+    let mut content_length: u8 = 32;
+    content.extend_from_slice(&(dimensions_amount).to_le_bytes());
+    // Content length value by default is 32
+    content.push(content_length);
+    //if content length given, changing the default value
     if(command.sarg.len() == 2){
-        content[1] = (command.sarg[1] as u8);
+        println!("asasd");
+        content_length = command.sarg[1] as u8;
+        content[8] = (content_length);
     }
     fs::write(&file_path,&content)?;
 
     // 6. Returning the address
     Ok(Db{
         path: file_path,
-        dimensions_amount: command.sarg[0] as u64,
-        content_length: command.sarg[1] as u8,
+        dimensions_amount: dimensions_amount,
+        content_length: content_length,
     })
 }
 //DROPDB command
@@ -154,7 +158,7 @@ pub fn enterdb(command: &Command,db: &Db) -> io::Result<Db> {
     file.read_exact(&mut buffer)?;
     let dimensions = u64::from_le_bytes(buffer);
 
-    // Затеняем старый buffer новым массивом из 1 байта
+    // recreating buffer
     let mut buffer = [0u8; 1];
     file.read_exact(&mut buffer)?;
     let content = u8::from_le_bytes(buffer);
