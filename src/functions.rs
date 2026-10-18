@@ -231,22 +231,22 @@ pub fn put(command: &Command, db: &Db) -> io::Result<String>{
             format!("Too many arguments"),
         ));
     }
-
+    let length:usize = db.content_length as usize;
     let mut file = OpenOptions::new()
         .write(true)
         .append(true)
         .create(true)
-        .open(&db.path)?;//макс длинна стринга 64 байта, длина компонента вектора не фиксировано, заголовка 16
+        .open(&db.path)?;//макс длинна стринга 64 байта, длина компонента вектора не фиксирована, заголовка 16
 
     let bytes = command.marg.as_bytes();
-    if bytes.len() > 64{
+    if bytes.len() > length{
         return Err(io::Error::new(
             io::ErrorKind::NotFound,
             format!("Value is too long")
         ))
     }
     //value writing
-    let mut buffer = [0u8;64];
+    let mut buffer = vec![0u8;length];
     buffer[..bytes.len()].copy_from_slice(bytes);
     file.write_all(&buffer)?;
 
