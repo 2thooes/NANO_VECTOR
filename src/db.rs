@@ -4,6 +4,7 @@ use std::path::PathBuf;
 pub struct Db{
     pub path:PathBuf,
     pub dimensions_amount: u64,
+    pub content_length:u8,
 }
 
 impl Db {
@@ -12,13 +13,14 @@ impl Db {
         Db {
             path: PathBuf::new(), // Empty path
             dimensions_amount: 0,
+            content_length:0,
         }
     }
 }
 
 impl PartialEq for Db{
     fn eq(&self,other: &Self) -> bool{
-        self.path == other.path && self.dimensions_amount == other.dimensions_amount
+        self.path == other.path && self.dimensions_amount == other.dimensions_amount && self.content_length == other.content_length
     }
 }
 

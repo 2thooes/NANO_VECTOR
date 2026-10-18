@@ -26,6 +26,13 @@ pub fn newdb(command: &Command) -> io::Result<Db> {
         ));
     }
 
+    if command.sarg.len() > 2 {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "Too many arguments",
+        ));
+    }
+
     // 1. Searching for folder for data (for example, ~/.local/share/nano_vector in Linux)
     let proj_dirs = ProjectDirs::from("com", "2thooes", "nano_vector")
         .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Cannot identify the system folder"))?;
@@ -50,13 +57,21 @@ pub fn newdb(command: &Command) -> io::Result<Db> {
 
     // 5. Creating empty file
     let _file = File::create(&file_path)?;
-    let header = command.sarg[0] as u64;
-    fs::write(&file_path,header.to_le_bytes())?;
+    let mut content = Vec::new();
+    // Если command.sarg[0] — это u64, пишем все его байты:
+    content.extend_from_slice(&(command.sarg[0] as u64).to_le_bytes());
+    // Добавляем байт 32
+    content.push((32 as u8));
+    if(command.sarg.len() == 2){
+        content[1] = (command.sarg[1] as u8);
+    }
+    fs::write(&file_path,&content)?;
 
     // 6. Returning the address
     Ok(Db{
         path: file_path,
-        dimensions_amount: header,
+        dimensions_amount: command.sarg[0] as u64,
+        content_length: command.sarg[1] as u8,
     })
 }
 //DROPDB command
@@ -137,9 +152,17 @@ pub fn enterdb(command: &Command,db: &Db) -> io::Result<Db> {
     
     let mut buffer = [0u8; 8];
     file.read_exact(&mut buffer)?;
+    let dimensions = u64::from_le_bytes(buffer);
+
+    // Затеняем старый buffer новым массивом из 1 байта
+    let mut buffer = [0u8; 1];
+    file.read_exact(&mut buffer)?;
+    let content = u8::from_le_bytes(buffer);
+
     Ok(Db {
         path: file_path,
-        dimensions_amount: u64::from_le_bytes(buffer),
+        dimensions_amount: dimensions/*u64::from_le_bytes(buffer)*/,
+        content_length: content,
     })
 }
 //EXITDB command
@@ -209,7 +232,7 @@ pub fn put(command: &Command, db: &Db) -> io::Result<String>{
         .write(true)
         .append(true)
         .create(true)
-        .open(&db.path)?;//макс длинна стринга 64 байта, длина компонента вектора 32, заголовка 16
+        .open(&db.path)?;//макс длинна стринга 64 байта, длина компонента вектора не фиксировано, заголовка 16
 
     let bytes = command.marg.as_bytes();
     if bytes.len() > 64{
