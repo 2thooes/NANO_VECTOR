@@ -264,6 +264,12 @@ pub fn get(command: &Command, db: &Db) -> io::Result<String>{
             format!("Not enough arguments"),
         ))
     }
+    if(*db == Db::default()){
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("You are not in db"),
+        ))
+    }
     match command.marg.as_str(){
         "all" => return get_all(command,db),
         "byid" =>  return get_byid(command,db),
