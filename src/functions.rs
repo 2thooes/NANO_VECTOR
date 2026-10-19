@@ -256,6 +256,11 @@ pub fn put(command: &Command, db: &Db) -> io::Result<String>{
     }
     Ok("put done".to_string())
 }
+//GET command
+pub fn get(command: &Command, db: &Db) -> io::Result<String>{
+    return Ok("".to_string());
+}
+
 pub fn status(command: &Command){
     println!("Status was called")
 }
