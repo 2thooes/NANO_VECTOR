@@ -64,10 +64,10 @@ pub fn newdb(command: &Command) -> io::Result<Db> {
     // Content length value by default is 32
     content.push(content_length);
     //if content length given, changing the default value
-    if(command.sarg.len() == 2){
+    if command.sarg.len() == 2{
         println!("asasd");
         content_length = command.sarg[1] as u8;
-        content[8] = (content_length);
+        content[8] = content_length;
     }
     fs::write(&file_path,&content)?;
 
@@ -219,7 +219,7 @@ pub fn put(command: &Command, db: &Db) -> io::Result<String>{
             format!("Put cannot be used outside of the database"),
         ));
     }
-    if(command.marg.is_empty() || command.sarg.is_empty() || db.dimensions_amount > command.sarg.len().try_into().unwrap()){
+    if command.marg.is_empty() || command.sarg.is_empty() || db.dimensions_amount > command.sarg.len().try_into().unwrap(){
         return Err(io::Error::new(
             io::ErrorKind::NotFound,
             format!("Not enough arguments"),
@@ -258,13 +258,13 @@ pub fn put(command: &Command, db: &Db) -> io::Result<String>{
 }
 //GET command
 pub fn get(command: &Command, db: &Db) -> io::Result<String>{
-    if(command.marg.is_empty()){
+    if command.marg.is_empty(){
         return Err(io::Error::new(
             io::ErrorKind::NotFound,
             format!("Not enough arguments"),
         ))
     }
-    if(*db == Db::default()){
+    if *db == Db::default(){
         return Err(io::Error::new(
             io::ErrorKind::NotFound,
             format!("You are not in db"),
