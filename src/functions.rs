@@ -258,7 +258,26 @@ pub fn put(command: &Command, db: &Db) -> io::Result<String>{
 }
 //GET command
 pub fn get(command: &Command, db: &Db) -> io::Result<String>{
+    if(command.marg.is_empty()){
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Not enough arguments"),
+        ))
+    }
+    match command.marg.as_str(){
+        "all" => return get_all(command,db),
+        "byid" =>  return get_byid(command,db),
+        _ => return Ok("Else was called".to_string()),
+    }
     return Ok("".to_string());
+}
+
+fn get_all(command: &Command, db: &Db) -> io::Result<String>{
+    return Ok("get_all called".to_string());
+}
+
+fn get_byid(command: &Command, db: &Db) -> io::Result<String>{
+    return Ok("get_byid called".to_string());
 }
 
 pub fn status(command: &Command){
