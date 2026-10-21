@@ -12,7 +12,7 @@ fn main() {
     loop {
         invitation(&database);
         let command = input::input_formatting(input::input());
-        show_command(&command);
+        //show_command(&command);
         match command.body.as_str(){
             "help" => functions::help(&command),
             "newdb" => {
@@ -87,7 +87,7 @@ fn main() {
             "status" => functions::status(&command),
             _ => println!("Command not found"),
         }
-        show_db(&database);
+        //show_db(&database);
     }
 }
 

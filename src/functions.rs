@@ -274,16 +274,16 @@ pub fn get(command: &Command, db: &mut Db) -> io::Result<String>{
 }
 
 fn get_all(command: &Command, db: &mut Db) -> io::Result<String>{
-    println!("inside get_all");
     let metadata = fs::metadata(&db.path)?;
     let file_size: u64 = metadata.len();
     //println!("Total byte length: {}, amount of working bytes: {}", file_size,file_size-9);
     let step:usize = (db.content_length as u64 + 4 * db.dimensions_amount) as usize;
     for i in (9..file_size).step_by(step){
-        println!("Element:{:?}",get_bytes(&mut db.file.as_mut().unwrap(),i,db.content_length as u64));
+        let bytes = get_bytes(&mut db.file.as_mut().unwrap(), i, db.content_length as u64);
+        let text = String::from_utf8(bytes).unwrap();
+        println!("Element:{}",text);
     }
-    println!("inside get_all");
-    return Ok("get_all called".to_string());
+    return Ok("Success!".to_string());
 }
 
 fn get_byid(command: &Command, db: &Db) -> io::Result<String>{
