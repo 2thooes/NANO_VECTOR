@@ -87,13 +87,20 @@ fn main() {
             "status" => functions::status(&command),
             _ => println!("Command not found"),
         }
+        show_db(&database);
     }
 }
 
 fn show_command(command: &Command) {
-    //println!("body: <{}>", command.body);
-    //println!("marg: <{}>", command.marg);
-    //println!("sarg: {:?}", command.sarg);
+    println!("body: <{}>", command.body);
+    println!("marg: <{}>", command.marg);
+    println!("sarg: {:?}", command.sarg);
+}
+
+fn show_db(db: &Db){
+    println!("path: <{}>", db.path.display());
+    println!("dim:  <{}>", db.dimensions_amount);
+    println!("cont: {:?}", db.content_length);
 }
 
 fn invitation(db: &Db){

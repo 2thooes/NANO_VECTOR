@@ -1,11 +1,10 @@
 use crate::command::Command;
 use crate::db::Db;
 use std::fs::{self, File};
-use std::io;
-use std::io::Read;
 use directories::ProjectDirs;
 use std::fs::OpenOptions;
 use std::io::Write;
+use std::io::{self, Read, Seek, SeekFrom};
 
 // HELP command
 pub fn help(command: &Command){
@@ -154,14 +153,8 @@ pub fn enterdb(command: &Command,db: &Db) -> io::Result<Db> {
         Err(e) => return Err(e),
     };
     
-    let mut buffer = [0u8; 8];
-    file.read_exact(&mut buffer)?;
-    let dimensions = u64::from_le_bytes(buffer);
-
-    // recreating buffer
-    let mut buffer = [0u8; 1];
-    file.read_exact(&mut buffer)?;
-    let content = u8::from_le_bytes(buffer);
+    let dimensions = u64::from_le_bytes(get_bytes(&mut file,0,8).try_into().unwrap());//handle errors
+    let content = u8::from_le_bytes(get_bytes(&mut file,8,1).try_into().unwrap());//handle errors
 
     Ok(Db {
         path: file_path,
@@ -236,7 +229,7 @@ pub fn put(command: &Command, db: &Db) -> io::Result<String>{
         .write(true)
         .append(true)
         .create(true)
-        .open(&db.path)?;//макс длинна стринга 64 байта, длина компонента вектора не фиксирована, заголовка 16
+        .open(&db.path)?;//макс длинна стринга 64 бита, длина компонента вектора не фиксирована, заголовка 16
 
     let bytes = command.marg.as_bytes();
     if bytes.len() > length{
@@ -279,11 +272,28 @@ pub fn get(command: &Command, db: &Db) -> io::Result<String>{
 }
 
 fn get_all(command: &Command, db: &Db) -> io::Result<String>{
+    println!("inside get_all");
+    let metadata = fs::metadata(&db.path)?;
+    let file_size: u64 = metadata.len();
+    println!("Total byte length: {}, amount of working bytes: {}", file_size,file_size-9);
+    for i in (0..file_size-9).step_by(1){
+        println!("{}",i);
+    }
+    println!("inside get_all");
     return Ok("get_all called".to_string());
 }
 
 fn get_byid(command: &Command, db: &Db) -> io::Result<String>{
     return Ok("get_byid called".to_string());
+}
+
+fn get_bytes(file: &mut File,start: u64, amount: u64) -> Vec<u8>{
+    file.seek(SeekFrom::Start(start));
+    let mut buffer = vec![0u8;amount as usize];
+    file.read_exact(&mut buffer);
+    file.seek(SeekFrom::Start(0));
+    //Ok(buffer);
+    buffer
 }
 
 pub fn status(command: &Command){
