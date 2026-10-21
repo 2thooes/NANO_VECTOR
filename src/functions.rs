@@ -55,7 +55,7 @@ pub fn newdb(command: &Command) -> io::Result<Db> {
     }
 
     // 5. Creating empty file
-    let _file = File::create(&file_path)?;
+    let file = File::create(&file_path)?;
     let mut content = Vec::new();
     let dimensions_amount: u64 = command.sarg[0] as u64;
     let mut content_length: u8 = 32;
@@ -73,6 +73,7 @@ pub fn newdb(command: &Command) -> io::Result<Db> {
     // 6. Returning the address
     Ok(Db{
         path: file_path,
+        file: Some(file),
         dimensions_amount: dimensions_amount,
         content_length: content_length,
     })
@@ -158,6 +159,7 @@ pub fn enterdb(command: &Command,db: &Db) -> io::Result<Db> {
 
     Ok(Db {
         path: file_path,
+        file: Some(file),
         dimensions_amount: dimensions/*u64::from_le_bytes(buffer)*/,
         content_length: content,
     })
@@ -250,7 +252,7 @@ pub fn put(command: &Command, db: &Db) -> io::Result<String>{
     Ok("put done".to_string())
 }
 //GET command
-pub fn get(command: &Command, db: &Db) -> io::Result<String>{
+pub fn get(command: &Command, db: &mut Db) -> io::Result<String>{
     if command.marg.is_empty(){
         return Err(io::Error::new(
             io::ErrorKind::NotFound,
@@ -271,13 +273,14 @@ pub fn get(command: &Command, db: &Db) -> io::Result<String>{
     return Ok("".to_string());
 }
 
-fn get_all(command: &Command, db: &Db) -> io::Result<String>{
+fn get_all(command: &Command, db: &mut Db) -> io::Result<String>{
     println!("inside get_all");
     let metadata = fs::metadata(&db.path)?;
     let file_size: u64 = metadata.len();
-    println!("Total byte length: {}, amount of working bytes: {}", file_size,file_size-9);
-    for i in (0..file_size-9).step_by(1){
-        println!("{}",i);
+    //println!("Total byte length: {}, amount of working bytes: {}", file_size,file_size-9);
+    let step:usize = (db.content_length as u64 + 4 * db.dimensions_amount) as usize;
+    for i in (9..file_size).step_by(step){
+        println!("Element:{:?}",get_bytes(&mut db.file.as_mut().unwrap(),i,db.content_length as u64));
     }
     println!("inside get_all");
     return Ok("get_all called".to_string());

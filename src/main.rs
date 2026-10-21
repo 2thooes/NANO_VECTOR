@@ -76,7 +76,7 @@ fn main() {
                 }
             }
             "get" => {
-                let result = functions::get(&command,&database);
+                let result = functions::get(&command,&mut database);
                 match result{
                     Ok(string) =>{
                         println!("{}",string);
