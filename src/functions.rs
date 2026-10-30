@@ -273,17 +273,43 @@ pub fn get(command: &Command, db: &mut Db) -> io::Result<String>{
     return Ok("".to_string());
 }
 
-fn get_all(command: &Command, db: &mut Db) -> io::Result<String>{
+fn get_all(command: &Command, db: &mut Db) -> io::Result<String> {
     let metadata = fs::metadata(&db.path)?;
-    let file_size: u64 = metadata.len();
-    //println!("Total byte length: {}, amount of working bytes: {}", file_size,file_size-9);
-    let step:usize = (db.content_length as u64 + 4 * db.dimensions_amount) as usize;
-    for i in (9..file_size).step_by(step){
-        let bytes = get_bytes(&mut db.file.as_mut().unwrap(), i, db.content_length as u64);
-        let text = String::from_utf8(bytes).unwrap();
-        println!("Element:{}",text);
+    let file_size: u64 = metadata.len();//abount of bytes in file
+    
+    let content_len = db.content_length as u64;
+    let dims = db.dimensions_amount as u64;
+    let step = content_len + dims * 4;
+
+    let mut i = 0;
+    let mut current_pos = 9;
+    //starting from 9, to the end through each data slice
+    while current_pos + step <= file_size {
+        // Reading content
+        let text_bytes = get_bytes(&mut db.file.as_mut().unwrap(), current_pos, content_len);
+        // Something
+        let text_end = text_bytes.iter().position(|&b| b == 0).unwrap_or(text_bytes.len());
+        let text = String::from_utf8_lossy(&text_bytes[..text_end]);
+        print!("{} ", text);
+
+        // Reading coordinates after the data
+        let vector_start = current_pos + content_len;
+        print!("<");
+        for j in 0..db.dimensions_amount {
+            let iterator = vector_start + (j as u64) * 4;
+            
+            let bytes = get_bytes(&mut db.file.as_mut().unwrap(), iterator, 4);
+            let bytes_array: [u8; 4] = bytes.try_into().expect("Expected 4 bytes for f32");
+            let num = f32::from_le_bytes(bytes_array);
+            
+            print!("<{}>", num);
+        }
+        println!(">");
+        current_pos += step;
+        i += 1;
     }
-    return Ok("Success!".to_string());
+
+    Ok("Success!".to_string())
 }
 
 fn get_byid(command: &Command, db: &Db) -> io::Result<String>{
