@@ -312,8 +312,37 @@ fn get_all(command: &Command, db: &mut Db) -> io::Result<String> {
     Ok("Success!".to_string())
 }
 
-fn get_byid(command: &Command, db: &Db) -> io::Result<String>{
-    return Ok("get_byid called".to_string());
+fn get_byid(command: &Command, db: &mut Db) -> io::Result<String>{
+    let metadata = fs::metadata(&db.path)?;
+    let file_size: u64 = metadata.len();//abount of bytes in file
+    
+    let content_len = db.content_length as u64;
+    let dims = db.dimensions_amount as u64;
+    let step = content_len + dims * 4;
+    let i = command.sarg[0] as u64;
+    let mut current_pos = 9 + i*step;
+    // Reading content
+    let text_bytes = get_bytes(&mut db.file.as_mut().unwrap(), current_pos, content_len);
+    // Something
+    let text_end = text_bytes.iter().position(|&b| b == 0).unwrap_or(text_bytes.len());
+    let text = String::from_utf8_lossy(&text_bytes[..text_end]);
+    print!("{} ", text);
+    // Reading coordinates after the data
+    let vector_start = current_pos + content_len;
+    print!("<");
+    for j in 0..db.dimensions_amount {
+        let iterator = vector_start + (j as u64) * 4;
+        
+        let bytes = get_bytes(&mut db.file.as_mut().unwrap(), iterator, 4);
+        let bytes_array: [u8; 4] = bytes.try_into().expect("Expected 4 bytes for f32");
+        let num = f32::from_le_bytes(bytes_array);
+            
+        print!("<{}>", num);
+    }
+    println!(">");
+    current_pos += step;
+
+    Ok("Success!".to_string())
 }
 
 fn get_bytes(file: &mut File,start: u64, amount: u64) -> Vec<u8>{
