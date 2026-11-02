@@ -280,6 +280,12 @@ pub fn search(command: &Command, db: &mut Db) -> io::Result<String>{
             format!("Not enough arguments"),
         ))
     }
+    if *db == Db::default(){
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("You are not in db"),
+        ))
+    }
     match command.marg.as_str(){
         "cosine" => return search_cosine(command,db),
         "dot" => return search_dot(command,db),
