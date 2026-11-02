@@ -313,6 +313,18 @@ fn get_all(command: &Command, db: &mut Db) -> io::Result<String> {
 }
 
 fn get_byid(command: &Command, db: &mut Db) -> io::Result<String>{
+    if command.sarg.is_empty(){
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Not enough arguments"),
+        ))
+    }
+    if command.sarg.len() > 1{
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Too much arguments"),
+        ))
+    }
     let metadata = fs::metadata(&db.path)?;
     let file_size: u64 = metadata.len();//abount of bytes in file
     
