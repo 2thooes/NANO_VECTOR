@@ -274,7 +274,15 @@ pub fn get(command: &Command, db: &mut Db) -> io::Result<String>{
 }
 
 fn get_all(command: &Command, db: &mut Db) -> io::Result<String> {
-    let metadata = fs::metadata(&db.path)?;
+    let metadata = match fs::metadata(&db.path){
+        Ok(meta) => meta,
+        Err(err) => {
+            return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Failed to read metadata"),
+        ))
+        }
+    };
     let file_size: u64 = metadata.len();//abount of bytes in file
     
     let content_len = db.content_length as u64;
@@ -325,14 +333,21 @@ fn get_byid(command: &Command, db: &mut Db) -> io::Result<String>{
             format!("Too much arguments"),
         ))
     }
-    let metadata = fs::metadata(&db.path)?;
-    let file_size: u64 = metadata.len();//abount of bytes in file
+    let metadata = match fs::metadata(&db.path){
+        Ok(meta) => meta,
+        Err(err) => {
+            return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Failed to read metadata"),
+        ))
+        }
+    };
+    let file_size: u64 = metadata.len();//amount of bytes in file
     
     let content_len = db.content_length as u64;
     let dims = db.dimensions_amount as u64;
-    let step = content_len + dims * 4;
     let i = command.sarg[0] as u64;
-    let mut current_pos = 9 + i*step;
+    let mut current_pos = 9 + i*(content_len + dims * 4);
     // Reading content
     let text_bytes = get_bytes(&mut db.file.as_mut().unwrap(), current_pos, content_len);
     // Something
@@ -352,7 +367,6 @@ fn get_byid(command: &Command, db: &mut Db) -> io::Result<String>{
         print!("<{}>", num);
     }
     println!(">");
-    current_pos += step;
 
     Ok("Success!".to_string())
 }
@@ -362,7 +376,6 @@ fn get_bytes(file: &mut File,start: u64, amount: u64) -> Vec<u8>{
     let mut buffer = vec![0u8;amount as usize];
     file.read_exact(&mut buffer);
     file.seek(SeekFrom::Start(0));
-    //Ok(buffer);
     buffer
 }
 
