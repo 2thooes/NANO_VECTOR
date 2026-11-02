@@ -273,6 +273,38 @@ pub fn get(command: &Command, db: &mut Db) -> io::Result<String>{
     return Ok("".to_string());
 }
 
+pub fn search(command: &Command, db: &mut Db) -> io::Result<String>{
+    if command.marg.is_empty(){
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Not enough arguments"),
+        ))
+    }
+    match command.marg.as_str(){
+        "cosine" => return search_cosine(command,db),
+        "dot" => return search_dot(command,db),
+        "euclid" => return search_euclid(command,db),
+        "manhattan" => return search_manhattan(command,db),
+        _ => return Ok("Else was called".to_string()),
+    }
+}
+
+pub fn search_cosine(command: &Command, db: &mut Db) -> io::Result<String>{
+    return Ok("Cosine was called".to_string());
+}
+
+pub fn search_dot(command: &Command, db: &mut Db) -> io::Result<String>{
+    return Ok("Dot was called".to_string());
+}
+
+pub fn search_euclid(command: &Command, db: &mut Db) -> io::Result<String>{
+    return Ok("Euclid was called".to_string());
+}
+
+pub fn search_manhattan(command: &Command, db: &mut Db) -> io::Result<String>{
+    return Ok("Manhattan was called".to_string());
+}
+
 fn get_all(command: &Command, db: &mut Db) -> io::Result<String> {
     let metadata = match fs::metadata(&db.path){
         Ok(meta) => meta,
