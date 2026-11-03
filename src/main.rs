@@ -2,6 +2,8 @@ mod command;
 mod input;
 mod functions;
 mod db;
+mod subfunctions;
+mod helper_functions;
 use crate::command::Command;
 use crate::db::Db;
 use std::io::{self, Write};
@@ -100,7 +102,7 @@ fn main() {
     }
 }
 
-fn show_command(command: &Command) {
+/*fn show_command(command: &Command) {
     println!("body: <{}>", command.body);
     println!("marg: <{}>", command.marg);
     println!("sarg: {:?}", command.sarg);
@@ -110,7 +112,7 @@ fn show_db(db: &Db){
     println!("path: <{}>", db.path.display());
     println!("dim:  <{}>", db.dimensions_amount);
     println!("cont: {:?}", db.content_length);
-}
+}*/
 
 fn invitation(db: &Db){
     print!("~");

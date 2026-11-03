@@ -1,10 +1,12 @@
 use crate::command::Command;
 use crate::db::Db;
+use crate::subfunctions;
+use crate::helper_functions;
 use std::fs::{self, File};
 use directories::ProjectDirs;
 use std::fs::OpenOptions;
 use std::io::Write;
-use std::io::{self, Read, Seek, SeekFrom};
+use std::io::{self};
 
 // HELP command
 pub fn help(command: &Command){
@@ -154,8 +156,8 @@ pub fn enterdb(command: &Command,db: &Db) -> io::Result<Db> {
         Err(e) => return Err(e),
     };
     
-    let dimensions = u64::from_le_bytes(get_bytes(&mut file,0,8).try_into().unwrap());//handle errors
-    let content = u8::from_le_bytes(get_bytes(&mut file,8,1).try_into().unwrap());//handle errors
+    let dimensions = u64::from_le_bytes(helper_functions::get_bytes(&mut file,0,8).try_into().unwrap());//handle errors
+    let content = u8::from_le_bytes(helper_functions::get_bytes(&mut file,8,1).try_into().unwrap());//handle errors
 
     Ok(Db {
         path: file_path,
@@ -266,8 +268,8 @@ pub fn get(command: &Command, db: &mut Db) -> io::Result<String>{
         ))
     }
     match command.marg.as_str(){
-        "all" => return get_all(command,db),
-        "byid" =>  return get_byid(command,db),
+        "all" => return subfunctions::get_all(command,db),
+        "id" =>  return subfunctions::get_id(command,db),
         _ => return Ok("Else was called".to_string()),
     }
     return Ok("".to_string());
@@ -287,141 +289,12 @@ pub fn search(command: &Command, db: &mut Db) -> io::Result<String>{
         ))
     }
     match command.marg.as_str(){
-        "cosine" => return search_cosine(command,db),
-        "dot" => return search_dot(command,db),
-        "euclid" => return search_euclid(command,db),
-        "manhattan" => return search_manhattan(command,db),
+        "cosine_byid" => return subfunctions::search_cosine_byid(command,db),
+        "dot_byid" => return subfunctions::search_dot_byid(command,db),
+        "euclid_byid" => return subfunctions::search_euclid_byid(command,db),
+        "manhattan_byid" => return subfunctions::search_manhattan_byid(command,db),
         _ => return Ok("Else was called".to_string()),
     }
-}
-
-pub fn search_cosine(command: &Command, db: &mut Db) -> io::Result<String>{
-    return Ok("Cosine was called".to_string());
-}
-
-pub fn search_dot(command: &Command, db: &mut Db) -> io::Result<String>{
-    return Ok("Dot was called".to_string());
-}
-
-pub fn search_euclid(command: &Command, db: &mut Db) -> io::Result<String>{
-    return Ok("Euclid was called".to_string());
-}
-
-pub fn search_manhattan(command: &Command, db: &mut Db) -> io::Result<String>{
-    return Ok("Manhattan was called".to_string());
-}
-
-fn get_all(command: &Command, db: &mut Db) -> io::Result<String> {
-    let metadata = match fs::metadata(&db.path){
-        Ok(meta) => meta,
-        Err(err) => {
-            return Err(io::Error::new(
-            io::ErrorKind::NotFound,
-            format!("Failed to read metadata"),
-        ))
-        }
-    };
-    let file_size: u64 = metadata.len();//abount of bytes in file
-    
-    let content_len = db.content_length as u64;
-    let dims = db.dimensions_amount as u64;
-    let step = content_len + dims * 4;
-
-    let mut i = 0;
-    let mut current_pos = 9;
-    //starting from 9, to the end through each data slice
-    while current_pos + step <= file_size {
-        // Reading content
-        let text_bytes = get_bytes(&mut db.file.as_mut().unwrap(), current_pos, content_len);
-        // Something
-        let text_end = text_bytes.iter().position(|&b| b == 0).unwrap_or(text_bytes.len());
-        let text = String::from_utf8_lossy(&text_bytes[..text_end]);
-        print!("{} ", text);
-
-        // Reading coordinates after the data
-        let vector_start = current_pos + content_len;
-        print!("<");
-        for j in 0..db.dimensions_amount {
-            let iterator = vector_start + (j as u64) * 4;
-            
-            let bytes = get_bytes(&mut db.file.as_mut().unwrap(), iterator, 4);
-            let bytes_array: [u8; 4] = bytes.try_into().expect("Expected 4 bytes for f32");
-            let num = f32::from_le_bytes(bytes_array);
-            
-            print!("<{}>", num);
-        }
-        println!(">");
-        current_pos += step;
-        i += 1;
-    }
-
-    Ok("Success!".to_string())
-}
-
-fn get_byid(command: &Command, db: &mut Db) -> io::Result<String>{
-    if command.sarg.is_empty(){
-        return Err(io::Error::new(
-            io::ErrorKind::NotFound,
-            format!("Not enough arguments"),
-        ))
-    }
-    if command.sarg.len() > 1{
-        return Err(io::Error::new(
-            io::ErrorKind::NotFound,
-            format!("Too much arguments"),
-        ))
-    }
-    let metadata = match fs::metadata(&db.path){
-        Ok(meta) => meta,
-        Err(err) => {
-            return Err(io::Error::new(
-            io::ErrorKind::NotFound,
-            format!("Failed to read metadata"),
-        ))
-        }
-    };
-    let i = command.sarg[0] as u64;
-    if i as f32 != command.sarg[0]{
-        return Err(io::Error::new(
-            io::ErrorKind::NotFound,
-            format!("Cannot use float id"),
-        ))
-    }
-    let file_size: u64 = metadata.len();//amount of bytes in file
-    
-    let content_len = db.content_length as u64;
-    let dims = db.dimensions_amount as u64;
-    let i = command.sarg[0] as u64;
-    let mut current_pos = 9 + i*(content_len + dims * 4);
-    // Reading content
-    let text_bytes = get_bytes(&mut db.file.as_mut().unwrap(), current_pos, content_len);
-    // Something
-    let text_end = text_bytes.iter().position(|&b| b == 0).unwrap_or(text_bytes.len());
-    let text = String::from_utf8_lossy(&text_bytes[..text_end]);
-    print!("{} ", text);
-    // Reading coordinates after the data
-    let vector_start = current_pos + content_len;
-    print!("<");
-    for j in 0..db.dimensions_amount {
-        let iterator = vector_start + (j as u64) * 4;
-        
-        let bytes = get_bytes(&mut db.file.as_mut().unwrap(), iterator, 4);
-        let bytes_array: [u8; 4] = bytes.try_into().expect("Expected 4 bytes for f32");
-        let num = f32::from_le_bytes(bytes_array);
-            
-        print!("<{}>", num);
-    }
-    println!(">");
-
-    Ok("Success!".to_string())
-}
-
-fn get_bytes(file: &mut File,start: u64, amount: u64) -> Vec<u8>{
-    file.seek(SeekFrom::Start(start));
-    let mut buffer = vec![0u8;amount as usize];
-    file.read_exact(&mut buffer);
-    file.seek(SeekFrom::Start(0));
-    buffer
 }
 
 pub fn status(command: &Command){
