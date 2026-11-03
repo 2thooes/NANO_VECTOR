@@ -107,48 +107,34 @@ pub fn get_id(command: &Command, db: &mut Db) -> io::Result<String>{
     Ok("Success!".to_string())
 }
 
-pub fn search_cosine_byid(command: &Command, db: &mut Db) -> io::Result<String>{
-    if command.sarg.len() < 1{
+pub fn closest(command: &Command, db: &mut Db) -> io::Result<String>{
+    if command.sarg.is_empty(){
         return Err(io::Error::new(
             io::ErrorKind::NotFound,
-            format!("Not enough arguments")
+            format!("Not enough arguments"),
         ))
     }
     if command.sarg.len() > 2{
         return Err(io::Error::new(
             io::ErrorKind::NotFound,
-            format!("Too many arguments")
+            format!("Too many arguments"),
         ))
-    }
-    if command.sarg.len() == 1{
-
-    }
-    return Ok("Euclid was called".to_string());
+    } // continue
+    Ok("s".to_string())
 }
 
-pub fn search_dot_byid(command: &Command, db: &mut Db) -> io::Result<String>{
-    return Ok("Dot was called".to_string());
+pub fn cosine(command: &Command, db:&mut Db) -> io::Result<String>{
+    Ok("+".to_string())
 }
 
-pub fn search_euclid_byid(command: &Command, db: &mut Db) -> io::Result<String>{
-    return Ok("Euclid was called".to_string());
+pub fn dot(command: &Command, db:&mut Db) -> io::Result<String>{
+    Ok("+".to_string())
 }
 
-pub fn search_manhattan_byid(command: &Command, db: &mut Db) -> io::Result<String>{
-    if command.sarg.len() < 1{
-        return Err(io::Error::new(
-            io::ErrorKind::NotFound,
-            format!("Not enough arguments")
-        ))
-    }
-    if command.sarg.len() > 2{
-        return Err(io::Error::new(
-            io::ErrorKind::NotFound,
-            format!("Too many arguments")
-        ))
-    }
-    if command.sarg.len() == 2{
-        let result = 0;//дописать
-    }
-    return Ok("Euclid was called".to_string());
+pub fn euclid(command: &Command, db:&mut Db) -> io::Result<String>{
+    Ok("+".to_string())
+}
+
+pub fn manhattan(command: &Command, db:&mut Db) -> io::Result<String>{
+    Ok("+".to_string())
 }

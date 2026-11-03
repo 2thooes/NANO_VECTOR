@@ -86,8 +86,8 @@ fn main() {
                     Err(e) => println!("Err: {}", e),
                 }
             }
-            "search" => {
-                let result = functions::search(&command,&mut database);
+            "find" => {
+                let result = functions::find(&command,&mut database);
                 match result{
                     Ok(string) =>{
                         println!("{}",string);
@@ -101,18 +101,6 @@ fn main() {
         //show_db(&database);
     }
 }
-
-/*fn show_command(command: &Command) {
-    println!("body: <{}>", command.body);
-    println!("marg: <{}>", command.marg);
-    println!("sarg: {:?}", command.sarg);
-}
-
-fn show_db(db: &Db){
-    println!("path: <{}>", db.path.display());
-    println!("dim:  <{}>", db.dimensions_amount);
-    println!("cont: {:?}", db.content_length);
-}*/
 
 fn invitation(db: &Db){
     print!("~");

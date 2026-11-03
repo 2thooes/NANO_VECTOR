@@ -275,24 +275,49 @@ pub fn get(command: &Command, db: &mut Db) -> io::Result<String>{
     return Ok("".to_string());
 }
 
-pub fn search(command: &Command, db: &mut Db) -> io::Result<String>{
-    if command.marg.is_empty(){
-        return Err(io::Error::new(
-            io::ErrorKind::NotFound,
-            format!("Not enough arguments"),
-        ))
-    }
+pub fn find(command: &Command, db: &mut Db) -> io::Result<String>{
     if *db == Db::default(){
         return Err(io::Error::new(
             io::ErrorKind::NotFound,
             format!("You are not in db"),
         ))
     }
+    if command.sarg.is_empty(){
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Not enough arguments"),
+        ))
+    }
+    if command.sarg.len() > 2{
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Too many arguments"),
+        ))
+    }
     match command.marg.as_str(){
-        "cosine_byid" => return subfunctions::search_cosine_byid(command,db),
-        "dot_byid" => return subfunctions::search_dot_byid(command,db),
-        "euclid_byid" => return subfunctions::search_euclid_byid(command,db),
-        "manhattan_byid" => return subfunctions::search_manhattan_byid(command,db),
+        "closest" => return subfunctions::closest(command,db),
+        _ => return Ok("Else was called".to_string()),
+    }
+}
+
+pub fn distance(command: &Command, db: &mut Db) -> io::Result<String>{
+    if *db == Db::default(){
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("You are not in db"),
+        ))
+    }
+    if command.marg.is_empty(){
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Not enough arguments"),
+        ))
+    }
+    match command.marg.as_str(){
+        "cosine" => return subfunctions::cosine(command,db),
+        "dot" => return subfunctions::dot(command,db),
+        "euclid" => return subfunctions::euclid(command,db),
+        "manhattan" => return subfunctions::manhattan(command,db),
         _ => return Ok("Else was called".to_string()),
     }
 }
