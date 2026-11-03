@@ -380,6 +380,13 @@ fn get_byid(command: &Command, db: &mut Db) -> io::Result<String>{
         ))
         }
     };
+    let i = command.sarg[0] as u64;
+    if i as f32 != command.sarg[0]{
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Cannot use float id"),
+        ))
+    }
     let file_size: u64 = metadata.len();//amount of bytes in file
     
     let content_len = db.content_length as u64;
