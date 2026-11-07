@@ -313,6 +313,12 @@ pub fn distance(command: &Command, db: &mut Db) -> io::Result<String>{
             format!("Not enough arguments"),
         ))
     }
+    if command.sarg.len() > 2{
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Too many arguments"),
+        ))
+    }
     match command.marg.as_str(){
         "cosine" => return subfunctions::cosine(command,db),
         "dot" => return subfunctions::dot(command,db),

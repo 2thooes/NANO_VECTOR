@@ -95,6 +95,15 @@ fn main() {
                     Err(e) => println!("Err: {}",e),
                 }
             }
+            "distance" => {
+                let result = functions::distance(&command,&mut database);
+                match result{
+                    Ok(string) =>{
+                        println!("{}",string);
+                    },
+                    Err(e) => println!("Err: {}",e),
+                }
+            }
             "status" => functions::status(&command),
             _ => println!("Command not found"),
         }

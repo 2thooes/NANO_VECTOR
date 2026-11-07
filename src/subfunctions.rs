@@ -123,8 +123,49 @@ pub fn closest(command: &Command, db: &mut Db) -> io::Result<String>{
     Ok("s".to_string())
 }
 
-pub fn cosine(command: &Command, db:&mut Db) -> io::Result<String>{
-    Ok("+".to_string())
+pub fn cosine(command: &Command, db: &mut Db) -> io::Result<String> {
+    // Call get_vector_element and handle potential I/O or index errors using '?'
+    let result = helper_functions::get_vector_element(command, db)?;
+    let mut vectors: Vec<Vec<f32>>;
+    let vectors = match helper_functions::get_vector_element(command, db) {
+        Ok(vec) => vec,
+        Err(e) => {
+            // Здесь можно добавить логирование ошибки, например:
+            // eprintln!("Error getting vector element: {}", e);
+            return Err(e); // или нужный вам формат возврата ошибки
+        }
+    };
+    // Ensure we actually have two vectors to compare
+    if vectors.len() < 2 {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            format!("Expected two vectors for cosine calculation"),
+        ));
+    }
+
+    let vector1 = &vectors[0];
+    let vector2 = &vectors[1];
+
+    // Calculate dot product and magnitudes for cosine similarity
+    let mut dot_product = 0.0;
+    let mut norm1: f32 = 0.0;
+    let mut norm2: f32 = 0.0;
+
+    for i in 0..vector1.len() {
+        dot_product += vector1[i] * vector2[i];
+        norm1 += vector1[i].powi(2);
+        norm2 += vector2[i].powi(2);
+    }
+
+    // Prevent division by zero if any vector contains only zeros
+    let similarity = if norm1 == 0.0 || norm2 == 0.0 {
+        0.0
+    } else {
+        dot_product / (norm1.sqrt() * norm2.sqrt())
+    };
+
+    // Return the calculated similarity result as a string
+    Ok(format!("Cosine similarity: {}", similarity))
 }
 
 pub fn dot(command: &Command, db:&mut Db) -> io::Result<String>{
