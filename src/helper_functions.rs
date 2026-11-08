@@ -14,6 +14,14 @@ pub fn get_bytes(file: &mut File,start: u64, amount: u64) -> Vec<u8>{
     buffer
 }
 
+pub fn get_length(db: &mut Db) -> io::Result<u64>{
+    let metadata = fs::metadata(db.path.clone())?;
+    let file_size: u64 = metadata.len();
+    let counter = db.content_length as u64 + 4*db.dimensions_amount;
+    let result = (file_size - 9) / counter;
+    return Ok(result);
+}
+
 pub fn get_vector_element(command: &Command, db: &mut Db) -> Result<Vec<Vec<f32>>, io::Error> {
     // Check if the first index is out of bounds (negative)
     if command.sarg[0] < 0.0 {

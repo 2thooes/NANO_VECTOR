@@ -319,6 +319,24 @@ pub fn distance(command: &Command, db: &mut Db) -> io::Result<String>{
             format!("Too many arguments"),
         ))
     }
+    let max_index = match helper_functions::get_length(db) {
+        Ok(size) => size,
+        Err(e) => return Err(e), // Wrap e in Err() to match the function's return type (io::Result)
+    };
+    if command.sarg[0] as u64 >= max_index{
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Index is out of bounce"),
+        ))
+    }
+    if command.sarg.len() > 1{
+        if command.sarg[1] as u64 >= max_index{
+            return Err(io::Error::new(
+                io::ErrorKind::NotFound,
+                format!("Index is out of bounce"),
+            ))
+        }
+    }
     match command.marg.as_str(){
         "cosine" => return subfunctions::cosine(command,db),
         "dot" => return subfunctions::dot(command,db),
