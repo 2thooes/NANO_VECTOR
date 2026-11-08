@@ -22,6 +22,13 @@ pub fn get_vector_element(command: &Command, db: &mut Db) -> Result<Vec<Vec<f32>
             format!("Index out of bound"),
         ));
     }
+    //Error handling in case if index is float
+    if command.sarg[0] as i64 as f32 != command.sarg[0] {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            format!("Index cannot be float"),
+        ));
+    }
 
     let mut vector1 = Vec::new();
     let mut vector2 = Vec::new();
@@ -44,13 +51,7 @@ pub fn get_vector_element(command: &Command, db: &mut Db) -> Result<Vec<Vec<f32>
     
     // --- Processing the first index ---
     let i = command.sarg[0] as u64;
-    
-    // Reading content for the first vector
-    let text_bytes = get_bytes(&mut db.file.as_mut().unwrap(), 9 + i * (content_len + dims * 4), content_len);
-    let text_end = text_bytes.iter().position(|&b| b == 0).unwrap_or(text_bytes.len());
-    let text = String::from_utf8_lossy(&text_bytes[..text_end]);
-    print!("{} ", text);
-    
+
     // Reading coordinates after the data for vector 1
     for j in 0..db.dimensions_amount {
         let iterator = 9 + i * (content_len + dims * 4) + content_len + (j as u64) * 4;
@@ -65,6 +66,14 @@ pub fn get_vector_element(command: &Command, db: &mut Db) -> Result<Vec<Vec<f32>
     // --- Processing the second index (if provided) ---
     // Check if the command contains a second argument/index
     if command.sarg.len() > 1 && command.sarg[1] >= 0.0 {
+        //Error handling in case if index is float
+        if command.sarg[1] as i64 as f32 != command.sarg[1] {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                format!("Index cannot be float"),
+            ));
+        }
+
         let i2 = command.sarg[1] as u64;
         
         // Reading coordinates for the second vector using the second index
