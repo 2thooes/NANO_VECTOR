@@ -177,5 +177,32 @@ pub fn euclid(command: &Command, db:&mut Db) -> io::Result<String>{
 }
 
 pub fn manhattan(command: &Command, db:&mut Db) -> io::Result<String>{
-    Ok("+".to_string())
+    // Call get_vector_element and handle potential I/O or index errors using '?'
+    let result = helper_functions::get_vector_element(command, db)?;
+    let mut vectors: Vec<Vec<f32>>;
+    let vectors = match helper_functions::get_vector_element(command, db) {
+        Ok(vec) => vec,
+        Err(e) => {
+            // Здесь можно добавить логирование ошибки, например:
+            // eprintln!("Error getting vector element: {}", e);
+            return Err(e); // или нужный вам формат возврата ошибки
+        }
+    };
+    // Ensure we actually have two vectors to compare
+    if vectors.len() < 2 {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            format!("Expected two vectors for cosine calculation"),
+        ));
+    }
+
+    let vector1 = &vectors[0];
+    let vector2 = &vectors[1];
+
+    let mut result:f32 = 0.0;
+
+    for i in 0..vector1.len(){
+        result = result + (vector1[i] - vector2[i]).abs();
+    }
+    Ok(format!("{}",result))
 }
