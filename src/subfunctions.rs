@@ -10,7 +10,7 @@ pub fn get_all(command: &Command, db: &mut Db) -> io::Result<String> {
         Err(err) => {
             return Err(io::Error::new(
             io::ErrorKind::NotFound,
-            format!("Failed to read metadata"),
+            format!("{}",err),
         ))
         }
     };
@@ -20,7 +20,7 @@ pub fn get_all(command: &Command, db: &mut Db) -> io::Result<String> {
     let dims = db.dimensions_amount as u64;
     let step = content_len + dims * 4;
 
-    let mut i = 0;
+
     let mut current_pos = 9;
     //starting from 9, to the end through each data slice
     while current_pos + step <= file_size {
@@ -45,7 +45,7 @@ pub fn get_all(command: &Command, db: &mut Db) -> io::Result<String> {
         }
         println!(">");
         current_pos += step;
-        i += 1;
+
     }
 
     Ok("Success!".to_string())
@@ -200,7 +200,7 @@ pub fn dot(command: &Command, db:&mut Db) -> io::Result<String>{
 pub fn euclid(command: &Command, db:&mut Db) -> io::Result<String>{
     // Call get_vector_element and handle potential I/O or index errors using '?'
     let result = helper_functions::get_vector_element(command, db)?;
-    let mut vectors: Vec<Vec<f32>>;
+    let mut _vectors: Vec<Vec<f32>>;
     let vectors = match helper_functions::get_vector_element(command, db) {
         Ok(vec) => vec,
         Err(e) => {

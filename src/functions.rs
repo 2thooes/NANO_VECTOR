@@ -178,7 +178,7 @@ pub fn exitdb(command: &Command, db: &Db) -> io::Result<Db> {
     Ok(Db::default())
 }
 //LSDB command
-pub fn lsdb(command: &Command, db: &Db) -> io::Result<Vec<String>>{
+pub fn lsdb() -> io::Result<Vec<String>>{
     let proj_dirs = ProjectDirs::from("com", "2thooes", "nano_vector")
         .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Cannot identify the system folder"))?;
 
@@ -272,7 +272,6 @@ pub fn get(command: &Command, db: &mut Db) -> io::Result<String>{
         "id" =>  return subfunctions::get_id(command,db),
         _ => return Ok("Else was called".to_string()),
     }
-    return Ok("".to_string());
 }
 
 pub fn find(command: &Command, db: &mut Db) -> io::Result<String>{

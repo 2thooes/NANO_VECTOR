@@ -4,7 +4,6 @@ mod functions;
 mod db;
 mod subfunctions;
 mod helper_functions;
-use crate::command::Command;
 use crate::db::Db;
 use std::io::{self, Write};
 
@@ -58,7 +57,7 @@ fn main() {
                 }
             },
             "lsdb" => {
-                let result = functions::lsdb(&command,&database);
+                let result = functions::lsdb();
                 match result {
                     Ok(vector) => {
                         for name in &vector{
