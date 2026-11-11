@@ -88,8 +88,8 @@ fn main() {
             "closest" => {
                 let result = functions::closest(&command,&mut database);
                 match result{
-                    Ok(string) =>{
-                        println!("{}",string);
+                    Ok(num) =>{
+                        println!("{}",num);
                     },
                     Err(e) => println!("Err: {}",e),
                 }

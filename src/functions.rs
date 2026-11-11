@@ -293,17 +293,29 @@ pub fn closest(command: &Command, db: &mut Db) -> io::Result<String>{
             format!("Not enough arguments")
         ))
     }
+    if command.sarg[0].fract() != 0.0 {
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Argument must be integer")
+        ))
+    }
+    if command.sarg[1].fract() != 0.0 {
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Index must be integer")
+        ))
+    }
 
     match command.marg.as_str(){
         "cosine" => return subfunctions::closest_by_cosine(command,db),
         "dot" => return subfunctions::closest_by_dot(command,db),
         "euclid" => return subfunctions::closest_by_euclid(command,db),
         "manhattan" => return subfunctions::closest_by_manhattan(command,db),
-        _ => return Ok("Else was called".to_string()),
+        _ => return Ok(format!("Agrument not found")),
     }
 }
 
-pub fn distance(command: &Command, db: &mut Db) -> io::Result<String>{
+pub fn distance(command: &Command, db: &mut Db) -> io::Result<f32>{
     if *db == Db::default(){
         return Err(io::Error::new(
             io::ErrorKind::NotFound,
@@ -345,7 +357,7 @@ pub fn distance(command: &Command, db: &mut Db) -> io::Result<String>{
         "dot" => return subfunctions::dot(command,db),
         "euclid" => return subfunctions::euclid(command,db),
         "manhattan" => return subfunctions::manhattan(command,db),
-        _ => return Ok("Else was called".to_string()),
+        _ => return Ok(-1.0),
     }
 }
 

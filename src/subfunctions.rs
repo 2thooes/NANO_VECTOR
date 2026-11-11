@@ -123,16 +123,14 @@ pub fn closest(command: &Command, db: &mut Db) -> io::Result<String>{
     Ok("s".to_string())
 }
 
-pub fn cosine(command: &Command, db: &mut Db) -> io::Result<String> {
+pub fn cosine(command: &Command, db: &mut Db) -> io::Result<f32> {
     // Call get_vector_element and handle potential I/O or index errors using '?'
-    let result = helper_functions::get_vector_element(command, db)?;
+    let result = helper_functions::get_two_vectors(command, db)?;
     let mut vectors: Vec<Vec<f32>>;
-    let vectors = match helper_functions::get_vector_element(command, db) {
+    let vectors = match helper_functions::get_two_vectors(command, db) {
         Ok(vec) => vec,
         Err(e) => {
-            // Здесь можно добавить логирование ошибки, например:
-            // eprintln!("Error getting vector element: {}", e);
-            return Err(e); // или нужный вам формат возврата ошибки
+            return Err(e);
         }
     };
     // Ensure we actually have two vectors to compare
@@ -165,14 +163,14 @@ pub fn cosine(command: &Command, db: &mut Db) -> io::Result<String> {
     };
 
     // Return the calculated similarity result as a string
-    Ok(format!("Cosine similarity: {}", similarity))
+    Ok(similarity)
 }
 
-pub fn dot(command: &Command, db:&mut Db) -> io::Result<String>{
+pub fn dot(command: &Command, db:&mut Db) -> io::Result<f32>{
     // Call get_vector_element and handle potential I/O or index errors using '?'
-    let result = helper_functions::get_vector_element(command, db)?;
+    let result = helper_functions::get_two_vectors(command, db)?;
     let mut vectors: Vec<Vec<f32>>;
-    let vectors = match helper_functions::get_vector_element(command, db) {
+    let vectors = match helper_functions::get_two_vectors(command, db) {
         Ok(vec) => vec,
         Err(e) => {
             return Err(e); 
@@ -194,14 +192,14 @@ pub fn dot(command: &Command, db:&mut Db) -> io::Result<String>{
     for i in 0..vector1.len(){
         result += vector1[i] * vector2[i];
     }
-    Ok(format!("{}",result))
+    Ok(result)
 }
 
-pub fn euclid(command: &Command, db:&mut Db) -> io::Result<String>{
+pub fn euclid(command: &Command, db:&mut Db) -> io::Result<f32>{
     // Call get_vector_element and handle potential I/O or index errors using '?'
-    let result = helper_functions::get_vector_element(command, db)?;
+    let result = helper_functions::get_two_vectors(command, db)?;
     let mut _vectors: Vec<Vec<f32>>;
-    let vectors = match helper_functions::get_vector_element(command, db) {
+    let vectors = match helper_functions::get_two_vectors(command, db) {
         Ok(vec) => vec,
         Err(e) => {
             return Err(e); 
@@ -223,14 +221,14 @@ pub fn euclid(command: &Command, db:&mut Db) -> io::Result<String>{
     for i in 0..vector1.len(){
         result +=(vector1[i] - vector2[i]).powi(2);
     }
-    Ok(format!("{}",result.sqrt()))
+    Ok(result.sqrt())
 }
 
-pub fn manhattan(command: &Command, db:&mut Db) -> io::Result<String>{
+pub fn manhattan(command: &Command, db:&mut Db) -> io::Result<f32>{
     // Call get_vector_element and handle potential I/O or index errors using '?'
-    let result = helper_functions::get_vector_element(command, db)?;
+    let result = helper_functions::get_two_vectors(command, db)?;
     let mut vectors: Vec<Vec<f32>>;
-    let vectors = match helper_functions::get_vector_element(command, db) {
+    let vectors = match helper_functions::get_two_vectors(command, db) {
         Ok(vec) => vec,
         Err(e) => {
             return Err(e); 
@@ -252,23 +250,27 @@ pub fn manhattan(command: &Command, db:&mut Db) -> io::Result<String>{
     for i in 0..vector1.len(){
         result = result + (vector1[i] - vector2[i]).abs();
     }
-    Ok(format!("{}",result))
+    Ok(result)
 }
 
 pub fn closest_by_cosine(command: &Command, db:&mut Db) -> io::Result<String>{
+    let num = command.sarg[0];
     let vector:Vec<f32> = helper_functions::get_vector_at_index(command.sarg[1] as u64,db);
-    println!("{:?}",vector);
-    Ok(format!("distance by cosine called"))
+    
+    for i in 0..helper_functions::get_length(db).unwrap(){
+        println!("asd");
+    }
+    Ok(format!("Ok"))
 }
 
 pub fn closest_by_dot(command: &Command, db:&mut Db) -> io::Result<String>{
-    Ok(format!("distance by dot called"))
+    Ok(format!("Ok"))
 }
 
 pub fn closest_by_euclid(command: &Command, db:&mut Db) -> io::Result<String>{
-    Ok(format!("distance by euclid called"))
+    Ok(format!("Ok"))
 }
 
 pub fn closest_by_manhattan(command: &Command, db:&mut Db) -> io::Result<String>{
-    Ok(format!("distance by manhattan called"))
+    Ok(format!("Ok"))
 }

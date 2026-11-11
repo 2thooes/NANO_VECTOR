@@ -42,8 +42,7 @@ pub fn get_vector_at_index(i: u64, db: &mut Db) -> Vec<f32> {
 }
 
 /// Метод 2: Объединяет два вектора (или вектор и нули) на основе аргументов команды
-pub fn get_vector_element(command: &Command, db: &mut Db) -> Result<Vec<Vec<f32>>, io::Error> {
-    // Вспомогательная функция для валидации индекса
+pub fn get_two_vectors(command: &Command, db: &mut Db) -> Result<Vec<Vec<f32>>, io::Error> {
     let validate_index = |val: f32| -> Result<u64, io::Error> {
         if val < 0.0 {
             return Err(io::Error::new(
