@@ -345,6 +345,11 @@ pub fn distance(command: &Command, db: &mut Db) -> io::Result<String>{
     }
 }
 
-pub fn status(command: &Command){
-    println!("Status was called")
+pub fn status(db: &mut Db){
+    if *db == Db::default(){
+        println!("Not in db");
+    }
+    else{
+        println!("In db, size:{}",helper_functions::get_length(db).unwrap());
+    }
 }

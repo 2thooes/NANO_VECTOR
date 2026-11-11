@@ -103,7 +103,7 @@ fn main() {
                     Err(e) => println!("Err: {}",e),
                 }
             }
-            "status" => functions::status(&command),
+            "status" => functions::status(&mut database),
             _ => println!("Command not found"),
         }
         //show_db(&database);
