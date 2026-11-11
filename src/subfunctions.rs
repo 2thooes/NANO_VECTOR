@@ -254,3 +254,21 @@ pub fn manhattan(command: &Command, db:&mut Db) -> io::Result<String>{
     }
     Ok(format!("{}",result))
 }
+
+pub fn closest_by_cosine(command: &Command, db:&mut Db) -> io::Result<String>{
+    let vector:Vec<f32> = helper_functions::get_vector_at_index(command.sarg[1] as u64,db);
+    println!("{:?}",vector);
+    Ok(format!("distance by cosine called"))
+}
+
+pub fn closest_by_dot(command: &Command, db:&mut Db) -> io::Result<String>{
+    Ok(format!("distance by dot called"))
+}
+
+pub fn closest_by_euclid(command: &Command, db:&mut Db) -> io::Result<String>{
+    Ok(format!("distance by euclid called"))
+}
+
+pub fn closest_by_manhattan(command: &Command, db:&mut Db) -> io::Result<String>{
+    Ok(format!("distance by manhattan called"))
+}

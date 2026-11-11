@@ -274,27 +274,31 @@ pub fn get(command: &Command, db: &mut Db) -> io::Result<String>{
     }
 }
 
-pub fn find(command: &Command, db: &mut Db) -> io::Result<String>{
+pub fn closest(command: &Command, db: &mut Db) -> io::Result<String>{
     if *db == Db::default(){
         return Err(io::Error::new(
             io::ErrorKind::NotFound,
             format!("You are not in db"),
         ))
     }
-    if command.sarg.is_empty(){
+    if command.sarg.len() > 2 {
         return Err(io::Error::new(
             io::ErrorKind::NotFound,
-            format!("Not enough arguments"),
+            format!("Too many arguments")
         ))
     }
-    if command.sarg.len() > 2{
+    if command.sarg.len() < 2 {
         return Err(io::Error::new(
             io::ErrorKind::NotFound,
-            format!("Too many arguments"),
+            format!("Not enough arguments")
         ))
     }
+
     match command.marg.as_str(){
-        "closest" => return subfunctions::closest(command,db),
+        "cosine" => return subfunctions::closest_by_cosine(command,db),
+        "dot" => return subfunctions::closest_by_dot(command,db),
+        "euclid" => return subfunctions::closest_by_euclid(command,db),
+        "manhattan" => return subfunctions::closest_by_manhattan(command,db),
         _ => return Ok("Else was called".to_string()),
     }
 }

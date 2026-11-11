@@ -22,45 +22,12 @@ pub fn get_length(db: &mut Db) -> io::Result<u64>{
     return Ok(result);
 }
 
-pub fn get_vector_element(command: &Command, db: &mut Db) -> Result<Vec<Vec<f32>>, io::Error> {
-    // Check if the first index is out of bounds (negative)
-    if command.sarg[0] < 0.0 {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            format!("Index out of bound"),
-        ));
-    }
-    //Error handling in case if index is float
-    if command.sarg[0] as i64 as f32 != command.sarg[0] {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            format!("Index cannot be float"),
-        ));
-    }
-
-    let mut vector1 = Vec::new();
-    let mut vector2 = Vec::new();
-
-    // Read metadata of the database file
-    let metadata = match fs::metadata(&db.path) {
-        Ok(meta) => meta,
-        Err(_err) => {
-            return Err(io::Error::new(
-                io::ErrorKind::NotFound,
-                format!("Failed to read metadata"),
-            ))
-        }
-    };
-    
-    let file_size: u64 = metadata.len(); // Amount of bytes in file
-    
+/// Метод 1: Достает один вектор из базы данных по заданному индексу `i`
+pub fn get_vector_at_index(i: u64, db: &mut Db) -> Vec<f32> {
     let content_len = db.content_length as u64;
     let dims = db.dimensions_amount as u64;
-    
-    // --- Processing the first index ---
-    let i = command.sarg[0] as u64;
+    let mut vector = Vec::new();
 
-    // Reading coordinates after the data for vector 1
     for j in 0..db.dimensions_amount {
         let iterator = 9 + i * (content_len + dims * 4) + content_len + (j as u64) * 4;
         
@@ -68,37 +35,46 @@ pub fn get_vector_element(command: &Command, db: &mut Db) -> Result<Vec<Vec<f32>
         let bytes_array: [u8; 4] = bytes.try_into().expect("Expected 4 bytes for f32");
         let num = f32::from_le_bytes(bytes_array);
         
-        vector1.push(num);
+        vector.push(num);
     }
 
-    // --- Processing the second index (if provided) ---
-    // Check if the command contains a second argument/index
-    if command.sarg.len() > 1 && command.sarg[1] >= 0.0 {
-        //Error handling in case if index is float
-        if command.sarg[1] as i64 as f32 != command.sarg[1] {
+    vector
+}
+
+/// Метод 2: Объединяет два вектора (или вектор и нули) на основе аргументов команды
+pub fn get_vector_element(command: &Command, db: &mut Db) -> Result<Vec<Vec<f32>>, io::Error> {
+    // Вспомогательная функция для валидации индекса
+    let validate_index = |val: f32| -> Result<u64, io::Error> {
+        if val < 0.0 {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                format!("Index out of bound"),
+            ));
+        }
+        if val as i64 as f32 != val {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
                 format!("Index cannot be float"),
             ));
         }
+        Ok(val as u64)
+    };
 
-        let i2 = command.sarg[1] as u64;
-        
-        // Reading coordinates for the second vector using the second index
-        for j in 0..db.dimensions_amount {
-            let iterator = 9 + i2 * (content_len + dims * 4) + content_len + (j as u64) * 4;
-            
-            let bytes = get_bytes(&mut db.file.as_mut().unwrap(), iterator, 4);
-            let bytes_array: [u8; 4] = bytes.try_into().expect("Expected 4 bytes for f32");
-            let num = f32::from_le_bytes(bytes_array);
-            
-            vector2.push(num);
-        }
+    // --- Обработка первого индекса ---
+    let i = validate_index(command.sarg[0])?;
+    let vector1 = get_vector_at_index(i, db);
+
+    let mut vector2 = Vec::new();
+
+    // --- Обработка второго индекса (если предоставлен) ---
+    if command.sarg.len() > 1 && command.sarg[1] >= 0.0 {
+        let i2 = validate_index(command.sarg[1])?;
+        vector2 = get_vector_at_index(i2, db);
     } else {
-        // If only 1 index is passed, fill the second vector with zeros matching dimensions amount
+        // Если передан только 1 индекс, заполняем второй вектор нулями
         vector2 = vec![0.0; db.dimensions_amount as usize];
     }
 
-    // Return both vectors wrapped in Ok
+    // Возвращаем оба вектора, обернутые в Ok
     Ok(vec![vector1, vector2])
 }

@@ -85,8 +85,8 @@ fn main() {
                     Err(e) => println!("Err: {}", e),
                 }
             }
-            "find" => {
-                let result = functions::find(&command,&mut database);
+            "closest" => {
+                let result = functions::closest(&command,&mut database);
                 match result{
                     Ok(string) =>{
                         println!("{}",string);
