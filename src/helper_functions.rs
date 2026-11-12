@@ -99,3 +99,12 @@ pub fn cosine_math(vector1:&Vec<f32>,vector2:&Vec<f32>) -> f32{
 
     similarity
 }
+
+pub fn dot_math(vector1:&Vec<f32>,vector2:&Vec<f32>) -> f32{
+    let mut result:f32 = 0.0;
+
+    for i in 0..vector1.len(){
+        result += vector1[i] * vector2[i];
+    }
+    result
+}
