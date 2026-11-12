@@ -77,3 +77,25 @@ pub fn get_two_vectors(command: &Command, db: &mut Db) -> Result<Vec<Vec<f32>>, 
     // Возвращаем оба вектора, обернутые в Ok
     Ok(vec![vector1, vector2])
 }
+
+pub fn cosine_math(vector1:&Vec<f32>,vector2:&Vec<f32>) -> f32{
+    // Calculate dot product and magnitudes for cosine similarity
+    let mut dot_product = 0.0;
+    let mut norm1: f32 = 0.0;
+    let mut norm2: f32 = 0.0;
+
+    for i in 0..vector1.len() {
+        dot_product += vector1[i] * vector2[i];
+        norm1 += vector1[i].powi(2);
+        norm2 += vector2[i].powi(2);
+    }
+
+    // Prevent division by zero if any vector contains only zeros
+    let similarity = if norm1 == 0.0 || norm2 == 0.0 {
+        0.0
+    } else {
+        dot_product / (norm1.sqrt() * norm2.sqrt())
+    };
+
+    similarity
+}

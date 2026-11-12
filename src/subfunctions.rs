@@ -144,26 +144,10 @@ pub fn cosine(command: &Command, db: &mut Db) -> io::Result<f32> {
     let vector1 = &vectors[0];
     let vector2 = &vectors[1];
 
-    // Calculate dot product and magnitudes for cosine similarity
-    let mut dot_product = 0.0;
-    let mut norm1: f32 = 0.0;
-    let mut norm2: f32 = 0.0;
-
-    for i in 0..vector1.len() {
-        dot_product += vector1[i] * vector2[i];
-        norm1 += vector1[i].powi(2);
-        norm2 += vector2[i].powi(2);
-    }
-
-    // Prevent division by zero if any vector contains only zeros
-    let similarity = if norm1 == 0.0 || norm2 == 0.0 {
-        0.0
-    } else {
-        dot_product / (norm1.sqrt() * norm2.sqrt())
-    };
+    let result:f32 = helper_functions::cosine_math(vector1,vector2);
 
     // Return the calculated similarity result as a string
-    Ok(similarity)
+    Ok(result)
 }
 
 pub fn dot(command: &Command, db:&mut Db) -> io::Result<f32>{
@@ -256,11 +240,17 @@ pub fn manhattan(command: &Command, db:&mut Db) -> io::Result<f32>{
 pub fn closest_by_cosine(command: &Command, db:&mut Db) -> io::Result<String>{
     let num = command.sarg[0];
     let vector:Vec<f32> = helper_functions::get_vector_at_index(command.sarg[1] as u64,db);
+    let mut result = vec!();
     
     for i in 0..helper_functions::get_length(db).unwrap(){
-        println!("asd");
+        if i != command.sarg[1] as u64{
+            let res = helper_functions::cosine_math(&helper_functions::get_vector_at_index(i as u64,db),&vector);
+            println!("{},{}",i,res);
+            result.push(res);
+        }
+        
     }
-    Ok(format!("Ok"))
+    Ok(format!("Success!"))
 }
 
 pub fn closest_by_dot(command: &Command, db:&mut Db) -> io::Result<String>{
