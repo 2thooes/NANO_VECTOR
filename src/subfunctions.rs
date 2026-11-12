@@ -196,12 +196,9 @@ pub fn euclid(command: &Command, db:&mut Db) -> io::Result<f32>{
     let vector1 = &vectors[0];
     let vector2 = &vectors[1];
 
-    let mut result:f32 = 0.0;
+    let result:f32 = helper_functions::euclid_math(vector1,vector2);
 
-    for i in 0..vector1.len(){
-        result +=(vector1[i] - vector2[i]).powi(2);
-    }
-    Ok(result.sqrt())
+    Ok(result)
 }
 
 pub fn manhattan(command: &Command, db:&mut Db) -> io::Result<f32>{
@@ -225,11 +222,8 @@ pub fn manhattan(command: &Command, db:&mut Db) -> io::Result<f32>{
     let vector1 = &vectors[0];
     let vector2 = &vectors[1];
 
-    let mut result:f32 = 0.0;
+    let result:f32 = helper_functions::manhattan_math(vector1,vector2);
 
-    for i in 0..vector1.len(){
-        result = result + (vector1[i] - vector2[i]).abs();
-    }
     Ok(result)
 }
 
@@ -278,9 +272,45 @@ pub fn closest_by_dot(command: &Command, db:&mut Db) -> io::Result<String>{
 }
 
 pub fn closest_by_euclid(command: &Command, db:&mut Db) -> io::Result<String>{
-    Ok(format!("Ok"))
+    let num = command.sarg[0] as usize;
+    let vector:Vec<f32> = helper_functions::get_vector_at_index(command.sarg[1] as u64,db);
+    let mut result: Vec<(u64,f32)> = vec!();
+    
+    for i in 0..helper_functions::get_length(db).unwrap(){
+        if i != command.sarg[1] as u64{
+            let res = helper_functions::euclid_math(&helper_functions::get_vector_at_index(i as u64,db),&vector);
+            result.push((i,res));
+        }
+        
+    }
+    result.sort_unstable_by(|b, a| {
+        b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal)
+    });
+    for i in 0..num{
+        let (idx, score) = result[i];
+        println!("{}:{}",idx, score);
+    }
+    Ok(format!("Success!"))
 }
 
 pub fn closest_by_manhattan(command: &Command, db:&mut Db) -> io::Result<String>{
-    Ok(format!("Ok"))
+    let num = command.sarg[0] as usize;
+    let vector:Vec<f32> = helper_functions::get_vector_at_index(command.sarg[1] as u64,db);
+    let mut result: Vec<(u64,f32)> = vec!();
+    
+    for i in 0..helper_functions::get_length(db).unwrap(){
+        if i != command.sarg[1] as u64{
+            let res = helper_functions::manhattan_math(&helper_functions::get_vector_at_index(i as u64,db),&vector);
+            result.push((i,res));
+        }
+        
+    }
+    result.sort_unstable_by(|b, a| {
+        b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal)
+    });
+    for i in 0..num{
+        let (idx, score) = result[i];
+        println!("{}:{}",idx, score);
+    }
+    Ok(format!("Success!"))
 }
