@@ -238,17 +238,23 @@ pub fn manhattan(command: &Command, db:&mut Db) -> io::Result<f32>{
 }
 
 pub fn closest_by_cosine(command: &Command, db:&mut Db) -> io::Result<String>{
-    let num = command.sarg[0];
+    let num = command.sarg[0] as usize;
     let vector:Vec<f32> = helper_functions::get_vector_at_index(command.sarg[1] as u64,db);
-    let mut result = vec!();
+    let mut result: Vec<(u64,f32)> = vec!();
     
     for i in 0..helper_functions::get_length(db).unwrap(){
         if i != command.sarg[1] as u64{
             let res = helper_functions::cosine_math(&helper_functions::get_vector_at_index(i as u64,db),&vector);
-            println!("{},{}",i,res);
-            result.push(res);
+            result.push((i,res));
         }
         
+    }
+    result.sort_unstable_by(|a, b| {
+        b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal)
+    });
+    for i in 0..num{
+        let (idx, score) = result[i];
+        println!("{},{}",idx, score);
     }
     Ok(format!("Success!"))
 }

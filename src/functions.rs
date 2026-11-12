@@ -305,6 +305,12 @@ pub fn closest(command: &Command, db: &mut Db) -> io::Result<String>{
             format!("Index must be integer")
         ))
     }
+    if command.sarg[0] as u64 >= helper_functions::get_length(db).unwrap(){
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Index is out of bounds")
+        ))
+    }
 
     match command.marg.as_str(){
         "cosine" => return subfunctions::closest_by_cosine(command,db),
