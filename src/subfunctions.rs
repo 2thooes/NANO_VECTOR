@@ -66,7 +66,7 @@ pub fn get_id(command: &Command, db: &mut Db) -> io::Result<String>{
     }
     let metadata = match fs::metadata(&db.path){
         Ok(meta) => meta,
-        Err(err) => {
+        Err(_err) => {
             return Err(io::Error::new(
             io::ErrorKind::NotFound,
             format!("Failed to read metadata"),
@@ -105,22 +105,6 @@ pub fn get_id(command: &Command, db: &mut Db) -> io::Result<String>{
     println!(">");
 
     Ok("Success!".to_string())
-}
-
-pub fn closest(command: &Command, db: &mut Db) -> io::Result<String>{
-    if command.sarg.is_empty(){
-        return Err(io::Error::new(
-            io::ErrorKind::NotFound,
-            format!("Not enough arguments"),
-        ))
-    }
-    if command.sarg.len() > 2{
-        return Err(io::Error::new(
-            io::ErrorKind::NotFound,
-            format!("Too many arguments"),
-        ))
-    } // continue
-    Ok("s".to_string())
 }
 
 pub fn cosine(command: &Command, db: &mut Db) -> io::Result<f32> {
@@ -225,6 +209,22 @@ pub fn manhattan(command: &Command, db:&mut Db) -> io::Result<f32>{
     let result:f32 = helper_functions::manhattan_math(vector1,vector2);
 
     Ok(result)
+}
+//closest functions
+pub fn closest(command: &Command, db: &mut Db) -> io::Result<String>{
+    if command.sarg.is_empty(){
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Not enough arguments"),
+        ))
+    }
+    if command.sarg.len() > 2{
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Too many arguments"),
+        ))
+    } // continue
+    Ok("s".to_string())
 }
 
 pub fn closest_by_cosine(command: &Command, db:&mut Db) -> io::Result<String>{

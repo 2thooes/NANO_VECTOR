@@ -7,10 +7,10 @@ use std::io::Read;
 use crate::db::Db;
 
 pub fn get_bytes(file: &mut File,start: u64, amount: u64) -> Vec<u8>{
-    file.seek(SeekFrom::Start(start));
+    let _ = file.seek(SeekFrom::Start(start));
     let mut buffer = vec![0u8;amount as usize];
-    file.read_exact(&mut buffer);
-    file.seek(SeekFrom::Start(0));
+    let _ = file.read_exact(&mut buffer);
+    let _ = file.seek(SeekFrom::Start(0));
     buffer
 }
 
@@ -22,7 +22,6 @@ pub fn get_length(db: &mut Db) -> io::Result<u64>{
     return Ok(result);
 }
 
-/// Метод 1: Достает один вектор из базы данных по заданному индексу `i`
 pub fn get_vector_at_index(i: u64, db: &mut Db) -> Vec<f32> {
     let content_len = db.content_length as u64;
     let dims = db.dimensions_amount as u64;
@@ -41,7 +40,6 @@ pub fn get_vector_at_index(i: u64, db: &mut Db) -> Vec<f32> {
     vector
 }
 
-/// Метод 2: Объединяет два вектора (или вектор и нули) на основе аргументов команды
 pub fn get_two_vectors(command: &Command, db: &mut Db) -> Result<Vec<Vec<f32>>, io::Error> {
     let validate_index = |val: f32| -> Result<u64, io::Error> {
         if val < 0.0 {
