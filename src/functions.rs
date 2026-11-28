@@ -11,7 +11,36 @@ use std::io::{self};
 // HELP command
 pub fn help(command: &Command){
     if command.marg.is_empty() && command.sarg.is_empty(){
-        println!("Help was called");
+        println!(r#"
+ NANO_VECTOR - tiny vector database
+
+ DATABASES
+   newdb <name> <dims> [label_len]   create a database and enter it
+   enterdb <name>                    open an existing database
+   exitdb                            leave the current database
+   dropdb [name]                     delete a database (current if no name)
+   lsdb                              list all databases
+   status                            show current database and its size
+
+ VECTORS
+   put <label> <x1> ... <xN>         add a vector (N = dims)
+   get all                           print every vector
+   get id <index>                    print one vector (0-based)
+
+ QUERIES
+   closest <metric> <k> <index>      k nearest vectors to vector <index>
+   distance <metric> <i> <j>         compare vectors i and j
+
+ METRICS
+   cosine, dot       higher = closer
+   euclid, manhattan lower = closer
+
+ EXAMPLE
+   newdb animals 3
+   put cat 0.9 0.1 0.0
+   put dog 0.8 0.3 0.1
+   closest cosine 1 0
+"#);
     }
     else{
         println!("Err:Too many arguments");
